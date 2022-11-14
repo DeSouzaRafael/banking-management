@@ -9,8 +9,7 @@ import { Users } from './shared/users.entity';
   imports: [
     TypeOrmModule.forFeature([Users]), forwardRef(() => AuthModule)],
   controllers:[UsersController],
-  providers: [
-    UsersService],
+  providers: [UsersService],
     exports:[UsersService]
 })
 export class UsersModule {}

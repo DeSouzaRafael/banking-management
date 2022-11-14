@@ -109,11 +109,12 @@ export class UsersService {
   async registerUser(data: RegisterUserDto): Promise<CallResponse> {
     data.govId = data.govId.replace(/\D/g, '')
 
-    if (data.govId.length < 11 || data.govId.length > 11) {
-      throw new HttpException({
-        message: 'Invalid CPF number of characters.'
-      }, HttpStatus.BAD_REQUEST)
-    }
+  let valid = await cpf(data.govId)
+  if(valid == false){
+    throw new HttpException({
+      message: 'Invalid CPF.'
+    }, HttpStatus.BAD_REQUEST)
+  }
 
     let userExist = await this.userRepository.findOne({ where: { govId: data.govId } })
     if (userExist) {
@@ -146,11 +147,11 @@ export class UsersService {
           message: 'Account Created Successfully.'
         }, HttpStatus.OK)
       })
-      .catch((error) => {
-        throw new HttpException({
-          message: 'Invalid data.'
-        }, HttpStatus.BAD_REQUEST)
-      })
+      //.catch((error) => {
+      //  throw new HttpException({
+      //    message: 'Invalid data.'
+      //  }, HttpStatus.BAD_REQUEST)
+      //})
   }
 
   async findOne(govId: string): Promise<Users | undefined> {
@@ -160,5 +161,23 @@ export class UsersService {
       }
     })
   }
+
+  
+}
+
+function cpf(cpf){
+  cpf = cpf.replace(/\D/g, '');
+  if(cpf.toString().length != 11 || /^(\d)\1{10}$/.test(cpf)) return false;
+  var result = true;
+  [9,10].forEach(function(j){
+      var soma = 0, r;
+      cpf.split(/(?=)/).splice(0,j).forEach(function(e, i){
+          soma += parseInt(e) * ((j+2)-(i+1));
+      });
+      r = soma % 11;
+      r = (r <2)?0:11-r;
+      if(r != cpf.substring(j, j+1)) result = false;
+  });
+  return result;
 }
 

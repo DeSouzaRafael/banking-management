@@ -1,14 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt'
-import { Users } from 'src/users/shared/users.entity';
 import { UsersService } from '../../users/shared/users.service';
 
 @Injectable()
 export class AuthService {
     constructor(
-      private usersService: UsersService,
-      private jwtService: JwtService,
+      private readonly usersService: UsersService,
+      private readonly jwtService: JwtService,
     ) {}
 
     async validateUser(userAccess: string, password: string): Promise<any> {
