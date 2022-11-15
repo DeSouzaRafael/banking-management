@@ -8,8 +8,8 @@ import { Users } from './shared/users.entity';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Users]), forwardRef(() => AuthModule)],
-  controllers:[UsersController],
+  controllers: [UsersController],
   providers: [UsersService],
-    exports:[UsersService]
+  exports: [UsersService]
 })
-export class UsersModule {}
+export class UsersModule { }

@@ -8,7 +8,7 @@ import { Users } from './users/shared/users.entity';
 
 @Module({
   imports: [
-    AuthModule,ConfigModule.forRoot(),JwtModule.register({
+    AuthModule, ConfigModule.forRoot(), JwtModule.register({
       secret: process.env.SECRET_KEY,
     }),
     TypeOrmModule.forRoot({
@@ -25,4 +25,4 @@ import { Users } from './users/shared/users.entity';
   controllers: [AppController],
   providers: [],
 })
-export class AppModule {}
+export class AppModule { }

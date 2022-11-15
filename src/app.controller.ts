@@ -5,13 +5,13 @@ import { LocalAuthGuard } from './auth/shared/local-auth.guard';
 
 @Controller()
 export class AppController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Get('')
   getHello(): string {
     return 'Hello!';
   }
- 
+
   @UseGuards(LocalAuthGuard)
   @Post('auth/login')
   async login(@Request() req) {

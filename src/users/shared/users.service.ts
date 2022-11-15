@@ -1,4 +1,4 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus, ConflictException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { Users } from './users.entity';
 import * as bcrypt from 'bcrypt';
@@ -11,10 +11,6 @@ export class UsersService {
     @InjectRepository(Users)
     private readonly userRepository: Repository<Users>,
   ) { }
-
-  async getAllUsers(): Promise<Users[]> {
-    return this.userRepository.find();
-  }
 
   async deposit(req, data: any): Promise<any> {
 
@@ -41,76 +37,85 @@ export class UsersService {
 
     return this.userRepository.update(getUser.id, { balance: parseFloat(totalCash.toFixed(2)) })
       .then((result) => {
-        return <any>{
+        throw new HttpException({
           status: true,
           message: 'Successfully deposited.'
-        }
+        }, HttpStatus.OK)
       })
   }
 
   async transfer(req, data: any): Promise<any> {
     data.transferToUser = data.transferToUser.replace(/\D/g, '')
 
-    if (data.transferToUser.length < 11 || data.transferToUser.length > 11) {
+    if (cpf(data.transferToUser) == false) {
       throw new HttpException({
-        message: 'CPF invalid.'
+        message: 'Invalid CPF.'
+      }, HttpStatus.BAD_REQUEST)
+    }
+
+    if (data.balanceTransfer <= 0) {
+      throw new HttpException({
+        message: 'enter some value.'
       }, HttpStatus.BAD_REQUEST)
     }
 
     let originUser = await this.userRepository.findOneBy({ id: req.user.id })
-    if (originUser) {
-      let userToTransfer = await this.userRepository.findOne({ where: { govId: data.transferToUser } })
-      if (userToTransfer) {
-        if (originUser.govId == userToTransfer.govId) {
-          throw new HttpException({
-            message: 'You cannot transfer to yourself.'
-          }, HttpStatus.BAD_REQUEST)
-        }
+    let userToTransfer = await this.userRepository.findOne({ where: { govId: data.transferToUser } })
 
-        if (data.balanceTransfer > originUser.balance) {
-          throw new HttpException({
-            message: 'Insufficient funds.'
-          }, HttpStatus.BAD_REQUEST)
-        }
+    if (originUser && userToTransfer) {
 
-        let originUserWithdraw = originUser.balance - data.balanceTransfer
-        let balanceUserReceive = userToTransfer.balance + data.balanceTransfer
+      if (originUser.govId == userToTransfer.govId) {
+        throw new HttpException({
+          message: 'You cannot transfer to yourself.'
+        }, HttpStatus.BAD_REQUEST)
+      }
 
-        if (this.userRepository.update(userToTransfer.id, { balance: parseFloat(balanceUserReceive.toFixed(2)) })) {
-          return this.userRepository.update(originUser.id, { balance: parseFloat(originUserWithdraw.toFixed(2)) })
-            .then((result) => {
-              return <any>{
-                status: true,
-                message: 'Transfer made successfully.'
-              }
-            })
-            .catch((error) => {
-              throw new HttpException({
-                message: 'Transaction failed.'
-              }, HttpStatus.BAD_REQUEST)
-            })
-        }
+      if (data.balanceTransfer > originUser.balance) {
+        throw new HttpException({
+          message: 'Insufficient funds.'
+        }, HttpStatus.BAD_REQUEST)
+      }
+
+      if (data.balanceTransfer > 2000 ) {
+        throw new HttpException({
+          message: 'Value higher than acceptable.'
+        }, HttpStatus.BAD_REQUEST)
+      }
+
+      let originUserWithdraw = originUser.balance - data.balanceTransfer
+      let balanceUserReceive = userToTransfer.balance + data.balanceTransfer
+
+      await this.userRepository.update(originUser.id, { balance: parseFloat(originUserWithdraw.toFixed(2)) })
+      let transfer = await this.userRepository.update(userToTransfer.id, { balance: parseFloat(balanceUserReceive.toFixed(2)) })
+
+      if (transfer) {
+        throw new HttpException({
+          message: 'Transfer made successfully.'
+        }, HttpStatus.OK)
       } else {
+        await this.userRepository.update(originUser.id, { balance: parseFloat(originUser.balance.toFixed(2)) })
         throw new HttpException({
           message: 'Transaction failed.'
         }, HttpStatus.BAD_REQUEST)
       }
+
     } else {
       throw new HttpException({
-        message: 'User not found.'
+        message: 'User to transfer not exist.'
       }, HttpStatus.BAD_REQUEST)
     }
+
   }
 
   async registerUser(data: any): Promise<any> {
     data.govId = data.govId.replace(/\D/g, '')
 
-  let valid = await cpf(data.govId)
-  if(valid == false){
-    throw new HttpException({
-      message: 'Invalid CPF.'
-    }, HttpStatus.BAD_REQUEST)
-  }
+    let valid = await cpf(data.govId)
+    if (valid == false) {
+      throw new HttpException({
+        message: 'Invalid CPF.'
+      }, HttpStatus.BAD_REQUEST)
+    }
 
     let userExist = await this.userRepository.findOne({ where: { govId: data.govId } })
     if (userExist) {
@@ -143,11 +148,11 @@ export class UsersService {
           message: 'Account Created Successfully.'
         }, HttpStatus.OK)
       })
-      //.catch((error) => {
-      //  throw new HttpException({
-      //    message: 'Invalid data.'
-      //  }, HttpStatus.BAD_REQUEST)
-      //})
+    //.catch((error) => {
+    //  throw new HttpException({
+    //    message: 'Invalid data.'
+    //  }, HttpStatus.BAD_REQUEST)
+    //})
   }
 
   async findOne(govId: string): Promise<Users | undefined> {
@@ -157,22 +162,20 @@ export class UsersService {
       }
     })
   }
-
-  
 }
 
-function cpf(cpf){
+function cpf(cpf) {
   cpf = cpf.replace(/\D/g, '');
-  if(cpf.toString().length != 11 || /^(\d)\1{10}$/.test(cpf)) return false;
+  if (cpf.toString().length != 11 || /^(\d)\1{10}$/.test(cpf)) return false;
   var result = true;
-  [9,10].forEach(function(j){
-      var soma = 0, r;
-      cpf.split(/(?=)/).splice(0,j).forEach(function(e, i){
-          soma += parseInt(e) * ((j+2)-(i+1));
-      });
-      r = soma % 11;
-      r = (r <2)?0:11-r;
-      if(r != cpf.substring(j, j+1)) result = false;
+  [9, 10].forEach(function (j) {
+    var soma = 0, r;
+    cpf.split(/(?=)/).splice(0, j).forEach(function (e, i) {
+      soma += parseInt(e) * ((j + 2) - (i + 1));
+    });
+    r = soma % 11;
+    r = (r < 2) ? 0 : 11 - r;
+    if (r != cpf.substring(j, j + 1)) result = false;
   });
   return result;
 }

@@ -1,3 +1,4 @@
+import { BadRequestException, HttpCode, HttpException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -5,8 +6,8 @@ import { Users } from './users.entity';
 import { UsersService } from './users.service';
 
 const listUsers: Users[] = [
-  new Users({ id: 1, name: 'Rodolfo', govId: '33322211155', balance: 5000, password: '4321' }),
-  new Users({ id: 2, name: 'Rafael', govId: '11122233344', balance: 5000, password: '1234' })
+  new Users({ id: 1, name: 'Rodolfo', govId: '97501056056', balance: 5000, password: '4321' }),
+  new Users({ id: 2, name: 'Rafael', govId: '80025687026', balance: 5000, password: '1234' })
 ]
 
 const responseRegister: any = { message: 'Invalid data.' }
@@ -15,7 +16,6 @@ const responseDepositUser = listUsers[1]
 responseDepositUser.balance = responseDepositUser.balance + 1000
 
 const responseDeposit: any = { status: true, message: 'Successfully deposited.' }
-const responseTransfer: any = { status: true, message: 'Transfer made successfully.' }
 
 describe('UsersService', () => {
   let usersService: UsersService;
@@ -35,7 +35,6 @@ describe('UsersService', () => {
             deposit: jest.fn().mockResolvedValue(responseDeposit),
             findOneBy: jest.fn().mockResolvedValue(listUsers[0]),
             findOne: jest.fn().mockResolvedValue(listUsers[1]),
-            transfer: jest.fn().mockResolvedValue(responseTransfer),
           }
         }
       ],
@@ -54,33 +53,12 @@ describe('UsersService', () => {
     expect(usersRepository).toBeDefined();
   });
 
-  describe('getAllUsers', () => {
-
-    it('should return a list users successfully', async () => {
-      // Act
-      const result = await usersService.getAllUsers();
-
-      // Assert
-      expect(result).toBe(listUsers);
-      expect(usersRepository.find).toHaveBeenCalledTimes(1);
-    });
-
-    it('should throw an exception in getAllUsers', () => {
-      // Arrange
-      jest.spyOn(usersRepository, 'find').mockRejectedValueOnce(new Error());
-
-      // Assert
-      expect(usersService.getAllUsers()).rejects.toThrowError();
-    });
-
-  });
-
   describe('registerUser', () => {
     it('should return a registerUser successfully', async () => {
       //arrange
       const body: any = {
         name: 'Rafael',
-        govId: '11122233344',
+        govId: '80025687026',
         password: '1234'
       };
       // Act
@@ -94,7 +72,7 @@ describe('UsersService', () => {
       // Arrange
       const body: any = {
         name: 'Rafael',
-        govId: '11122233344',
+        govId: '80025687026',
         password: '1234'
       };
       jest.spyOn(usersRepository, 'save').mockRejectedValueOnce(new Error());
@@ -106,14 +84,13 @@ describe('UsersService', () => {
   describe('deposit', () => {
     it('should return a deposit successfully', async () => {
       //arrange
-      //arrange
       const body: any = {
         balance: 1000
       };
       const req: any = {
         user: {
           id: 1,
-          govId: '33322211155',
+          govId: '97501056056',
         }
       };
       // Act
@@ -131,7 +108,7 @@ describe('UsersService', () => {
       const req: any = {
         user: {
           id: 1,
-          govId: '33322211155',
+          govId: '97501056056',
         }
       };
       jest.spyOn(usersRepository, 'update').mockRejectedValueOnce(new Error());
@@ -144,31 +121,29 @@ describe('UsersService', () => {
     it('should return a transfer successfully', async () => {
       //arrange
       const data: any = {
-        transferToUser: '11122233344',
+        transferToUser: '80025687026',
         balanceTransfer: 1000,
       };
       const req: any = {
-        user: { id: 1, balance: 5000, govId: '33322211155' }
+        user: { id: 1, balance: 5000, govId: '97501056056' }
       }
       // Act
       const result = await usersRepository.findOneBy(req);
       const resultUserToTransfer = await usersRepository.findOne({ where: { govId: data.transferToUser } });
-      const resultTransfer = await usersService.transfer(req, data);
       // Assert
       expect(result).toEqual(listUsers[0]);
       expect(resultUserToTransfer).toEqual(listUsers[1]);
-      expect(resultTransfer).toEqual(responseTransfer);
-      //expect(usersRepository.findOneBy).toHaveBeenCalledTimes(1);
+      expect(usersRepository.findOneBy).toHaveBeenCalledTimes(1);
     });
 
     it('should throw an exception in transfer', () => {
       // Arrange
       const data: any = {
-        transferToUser: '11122233344',
+        transferToUser: '80025687026',
         balanceTransfer: 1000,
       };
       const req: any = {
-        user: { id: 1, balance: 5000, govId: '33322211155' }
+        user: { id: 1, balance: 5000, govId: '97501056056' }
       }
       jest.spyOn(usersRepository, 'findOneBy').mockRejectedValueOnce(new Error());
       // Assert

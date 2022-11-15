@@ -7,11 +7,11 @@ import { JwtAuthGuard } from '../auth/shared/jwt-auth.guard';
 
 
 const listUsers: Users[] = [
-    new Users({ id: 1, name: 'Rodolfo', govId: '33322211155', balance: 5000, password: '4321' }),
-    new Users({ id: 2, name: 'Rafael', govId: '11122233344', balance: 5000, password: '1234' })
+    new Users({ id: 1, name: 'Rodolfo', govId: '97501056056', balance: 5000, password: '4321' }),
+    new Users({ id: 2, name: 'Rafael', govId: '80025687026', balance: 5000, password: '1234' })
 ]
 
-const newUserEntity = new Users({ name: 'Rafael', govId: '33322211155', password: '1234' });
+const newUserEntity = new Users({ name: 'Rafael', govId: '80025687026', password: '1234' });
 
 const responseTransfer: any = { message: 'Transfer made successfully.' }
 
@@ -29,7 +29,6 @@ describe('UsersController', () => {
                 {
                     provide: UsersService,
                     useValue: {
-                        getAllUsers: jest.fn().mockResolvedValue(listUsers),
                         registerUser: jest.fn().mockResolvedValue(newUserEntity),
                         deposit: jest.fn().mockResolvedValue(responseDeposit),
                         transfer: jest.fn().mockResolvedValue(responseTransfer),
@@ -60,25 +59,6 @@ describe('UsersController', () => {
         usersService = app.get<UsersService>(UsersService);
     });
 
-    describe('List users', () => {
-
-        it('should return List Users!', async () => {
-            //act
-            const result = await usersController.getAllUsers();
-            //assert
-            expect(result).toBe(listUsers);
-            expect(usersService.getAllUsers).toHaveBeenCalledTimes(1);
-            expect(typeof result).toEqual('object');
-        });
-
-        it('should throw an exception in List Users!', () => {
-            //arrange
-            jest.spyOn(usersService, 'getAllUsers').mockRejectedValueOnce(new Error());
-            //assert
-            expect(usersController.getAllUsers()).rejects.toThrowError();
-        });
-
-    });
 
     describe('Create user', () => {
 
@@ -86,7 +66,7 @@ describe('UsersController', () => {
             //arrange
             const body: any = {
                 name: 'Rafael',
-                govId: '33322211155',
+                govId: '80025687026',
                 password: '1234'
             };
             //act
@@ -101,7 +81,7 @@ describe('UsersController', () => {
             //arrange
             const body: any = {
                 name: 'Rafael',
-                govId: '33322211155',
+                govId: '80025687026',
                 password: '1234'
             };
             jest.spyOn(usersService, 'registerUser').mockRejectedValueOnce(new Error());
@@ -120,7 +100,7 @@ describe('UsersController', () => {
             const tokenExtractUser: any = {
                 user: {
                     id: 1,
-                    govId: '33322211155',
+                    govId: '97501056056',
                 }
             };
             //act
@@ -150,11 +130,11 @@ describe('UsersController', () => {
         it('should transfer balance from the logged in user to another user successfully!', async () => {
             //arrange
             const data: any = {
-                transferToUser: '44861199832',
+                transferToUser: '80025687026',
                 balanceTransfer: 1000,
             };
             const req: any = {
-                user: { id: 15, balance: 100, govId: '11122233344' }
+                user: { id: 1, balance: 100, govId: '97501056056' }
             }
             //act
             const result = await usersController.transfer(req, data)
@@ -167,11 +147,11 @@ describe('UsersController', () => {
         it('should throw an exceptionin Transfer!', () => {
             //arrange
             const data: any = {
-                transferToUser: '44861199832',
+                transferToUser: '80025687026',
                 balanceTransfer: 1000,
             };
             const req: any = {
-                user: { id: 15, govId: '44861199832' }
+                user: { id: 1, govId: '97501056056' }
             }
             jest.spyOn(usersService, 'transfer').mockRejectedValueOnce(new Error());
             //assert
