@@ -1,5 +1,5 @@
 require("dotenv").config();
 
 export const jwtConstants = {
-    secret: process.env.SECRET_KEY,
+    secret: process.env.ACCESS_SECRET_KEY,
   };

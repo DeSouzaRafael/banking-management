@@ -4,12 +4,12 @@ import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AuthModule } from './auth/auth.module';
-import { Users } from './users/shared/users.entity';
+import { UserEntity } from './users/shared/users.entity';
 
 @Module({
   imports: [
     AuthModule, ConfigModule.forRoot(), JwtModule.register({
-      secret: process.env.SECRET_KEY,
+      secret: process.env.ACCESS_SECRET_KEY,
     }),
     TypeOrmModule.forRoot({
       type: 'mysql',
@@ -18,7 +18,7 @@ import { Users } from './users/shared/users.entity';
       username: process.env.DB_USER,
       password: process.env.DB_PASS,
       database: process.env.DB_NAME,
-      entities: [Users],
+      entities: [UserEntity],
       synchronize: true,
     }),
   ],

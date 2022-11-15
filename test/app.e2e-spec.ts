@@ -12,11 +12,6 @@ class TestLogger implements LoggerService {
   verbose(message: string) { }
 }
 
-const listUsers: any[] = [
-  { id: 1, name: 'Rodolfo', govId: '97501056056', balance: 5000 },
-  { id: 2, name: 'Rafael', govId: '80025687026', balance: 5000 }
-]
-
 describe('Bank Management', () => {
   let app: INestApplication
 
@@ -34,13 +29,6 @@ describe('Bank Management', () => {
     await Promise.all([
       app.close(),
     ])
-  })
-
-  it('/ (GET)', () => {
-    return request(app.getHttpServer())
-      .get('/')
-      .expect(200)
-      .expect('Hello!')
   })
 
   describe('Create Users', () => {
@@ -139,6 +127,28 @@ describe('Bank Management', () => {
           expect(data).toBe('Amount greater than the accepted limit on the deposit.');
         })
 
+        it('Fails to send negative values', async () => {
+          const response = await request(app.getHttpServer())
+            .put('/users/deposit')
+            .set('Authorization', `Bearer ${jwtToken}`)
+            .send({ balance: -1000 })
+            .expect(400)
+
+          const data = response.body.message
+          expect(data).toBe('Negative values ​​are not valid.');
+        })
+
+        it('Fails when to send letter instead of numbers', async () => {
+          const response = await request(app.getHttpServer())
+            .put('/users/deposit')
+            .set('Authorization', `Bearer ${jwtToken}`)
+            .send({ balance: `thousand` })
+            .expect(500)
+
+          const data = response.body.message
+          expect(data).toBe('Internal server error');
+        })
+
       })
 
       describe('Transfers', () => {
@@ -167,6 +177,45 @@ describe('Bank Management', () => {
           const data = response.body.message
 
           expect(data).toBe('You cannot transfer to yourself.')
+        })
+
+        it('Fails to enter invalid CPF', async () => {
+
+          const response = await request(app.getHttpServer())
+            .put('/users/transfer')
+            .set('Authorization', `Bearer ${jwtToken}`)
+            .send({ transferToUser: "99988877745", balanceTransfer: 1000 })
+            .expect(400)
+
+          const data = response.body.message
+
+          expect(data).toBe('Invalid CPF.')
+        })
+
+        it('Fails trying to transfer negative values', async () => {
+
+          const response = await request(app.getHttpServer())
+            .put('/users/transfer')
+            .set('Authorization', `Bearer ${jwtToken}`)
+            .send({ transferToUser: "80025687026", balanceTransfer: -1000 })
+            .expect(400)
+
+          const data = response.body.message
+
+          expect(data).toBe('You cannot transfer negative values.')
+        })
+
+        it('Fails when trying to transfer no value (0)', async () => {
+
+          const response = await request(app.getHttpServer())
+            .put('/users/transfer')
+            .set('Authorization', `Bearer ${jwtToken}`)
+            .send({ transferToUser: "80025687026", balanceTransfer: 0 })
+            .expect(400)
+
+          const data = response.body.message
+
+          expect(data).toBe('Enter a tranfer amount.')
         })
 
         it('Fails to authenticate user to transfer', async () => {
