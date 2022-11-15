@@ -7,6 +7,11 @@ import { LocalAuthGuard } from './auth/shared/local-auth.guard';
 export class AppController {
   constructor(private readonly authService: AuthService) {}
 
+  @Get('')
+  getHello(): string {
+    return 'Hello!';
+  }
+ 
   @UseGuards(LocalAuthGuard)
   @Post('auth/login')
   async login(@Request() req) {
@@ -18,5 +23,4 @@ export class AppController {
   getProfile(@Request() req) {
     return req.user;
   }
-
 }

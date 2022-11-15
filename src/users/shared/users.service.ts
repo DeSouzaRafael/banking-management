@@ -1,11 +1,7 @@
-import { Injectable, Inject, HttpException, HttpStatus } from '@nestjs/common';
-import { CallResponse } from '../../dto/response.dto';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import { RegisterUserDto } from '../dto/create.user.dto';
 import { Users } from './users.entity';
 import * as bcrypt from 'bcrypt';
-import { TransferBalanceDto } from '../dto/transfer.balance.user.dto';
-import { RegisterDepositDto } from '../dto/deposit.user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
@@ -20,7 +16,7 @@ export class UsersService {
     return this.userRepository.find();
   }
 
-  async deposit(req, data: RegisterDepositDto): Promise<CallResponse> {
+  async deposit(req, data: any): Promise<any> {
 
     let getUser = await this.userRepository.findOneBy({ id: req.user.id })
 
@@ -45,14 +41,14 @@ export class UsersService {
 
     return this.userRepository.update(getUser.id, { balance: parseFloat(totalCash.toFixed(2)) })
       .then((result) => {
-        return <CallResponse>{
+        return <any>{
           status: true,
           message: 'Successfully deposited.'
         }
       })
   }
 
-  async transfer(req, data: TransferBalanceDto): Promise<any> {
+  async transfer(req, data: any): Promise<any> {
     data.transferToUser = data.transferToUser.replace(/\D/g, '')
 
     if (data.transferToUser.length < 11 || data.transferToUser.length > 11) {
@@ -83,7 +79,7 @@ export class UsersService {
         if (this.userRepository.update(userToTransfer.id, { balance: parseFloat(balanceUserReceive.toFixed(2)) })) {
           return this.userRepository.update(originUser.id, { balance: parseFloat(originUserWithdraw.toFixed(2)) })
             .then((result) => {
-              return <CallResponse>{
+              return <any>{
                 status: true,
                 message: 'Transfer made successfully.'
               }
@@ -106,7 +102,7 @@ export class UsersService {
     }
   }
 
-  async registerUser(data: RegisterUserDto): Promise<CallResponse> {
+  async registerUser(data: any): Promise<any> {
     data.govId = data.govId.replace(/\D/g, '')
 
   let valid = await cpf(data.govId)

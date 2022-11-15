@@ -3,23 +3,19 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Users } from './users.entity';
 import { UsersService } from './users.service';
-import { RegisterUserDto } from '../dto/create.user.dto';
-import { CallResponse } from '../../dto/response.dto';
-import { RegisterDepositDto } from '../dto/deposit.user.dto';
-import { TransferBalanceDto } from '../dto/transfer.balance.user.dto';
 
 const listUsers: Users[] = [
   new Users({ id: 1, name: 'Rodolfo', govId: '33322211155', balance: 5000, password: '4321' }),
   new Users({ id: 2, name: 'Rafael', govId: '11122233344', balance: 5000, password: '1234' })
 ]
 
-const responseRegister: CallResponse = { message: 'Invalid data.' }
+const responseRegister: any = { message: 'Invalid data.' }
 
 const responseDepositUser = listUsers[1]
 responseDepositUser.balance = responseDepositUser.balance + 1000
 
-const responseDeposit: CallResponse = { status: true, message: 'Successfully deposited.' }
-const responseTransfer: CallResponse = { status: true, message: 'Transfer made successfully.' }
+const responseDeposit: any = { status: true, message: 'Successfully deposited.' }
+const responseTransfer: any = { status: true, message: 'Transfer made successfully.' }
 
 describe('UsersService', () => {
   let usersService: UsersService;
@@ -82,7 +78,7 @@ describe('UsersService', () => {
   describe('registerUser', () => {
     it('should return a registerUser successfully', async () => {
       //arrange
-      const body: RegisterUserDto = {
+      const body: any = {
         name: 'Rafael',
         govId: '11122233344',
         password: '1234'
@@ -96,7 +92,7 @@ describe('UsersService', () => {
 
     it('should throw an exception in getAllUsers', () => {
       // Arrange
-      const body: RegisterUserDto = {
+      const body: any = {
         name: 'Rafael',
         govId: '11122233344',
         password: '1234'
@@ -111,7 +107,7 @@ describe('UsersService', () => {
     it('should return a deposit successfully', async () => {
       //arrange
       //arrange
-      const body: RegisterDepositDto = {
+      const body: any = {
         balance: 1000
       };
       const req: any = {
@@ -129,7 +125,7 @@ describe('UsersService', () => {
 
     it('should throw an exception in deposit', () => {
       // Arrange
-      const body: RegisterDepositDto = {
+      const body: any = {
         balance: 1000
       };
       const req: any = {
@@ -147,7 +143,7 @@ describe('UsersService', () => {
   describe('transfer', () => {
     it('should return a transfer successfully', async () => {
       //arrange
-      const data: TransferBalanceDto = {
+      const data: any = {
         transferToUser: '11122233344',
         balanceTransfer: 1000,
       };
@@ -167,7 +163,7 @@ describe('UsersService', () => {
 
     it('should throw an exception in transfer', () => {
       // Arrange
-      const data: TransferBalanceDto = {
+      const data: any = {
         transferToUser: '11122233344',
         balanceTransfer: 1000,
       };

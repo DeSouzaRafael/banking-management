@@ -1,9 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CallResponse } from '../dto/response.dto';
 import { AuthService } from '../auth/shared/auth.service';
-import { RegisterUserDto } from './dto/create.user.dto';
-import { RegisterDepositDto } from './dto/deposit.user.dto';
-import { TransferBalanceDto } from './dto/transfer.balance.user.dto';
 import { UsersController } from './users.controller';
 import { Users } from './shared/users.entity';
 import { UsersService } from './shared/users.service';
@@ -17,9 +13,9 @@ const listUsers: Users[] = [
 
 const newUserEntity = new Users({ name: 'Rafael', govId: '33322211155', password: '1234' });
 
-const responseTransfer: CallResponse = { message: 'Transfer made successfully.' }
+const responseTransfer: any = { message: 'Transfer made successfully.' }
 
-const responseDeposit: CallResponse = { message: 'Successfully deposited.' }
+const responseDeposit: any = { message: 'Successfully deposited.' }
 
 describe('UsersController', () => {
     let usersController: UsersController;
@@ -88,7 +84,7 @@ describe('UsersController', () => {
 
         it('should created a new User item sucessfully!', async () => {
             //arrange
-            const body: RegisterUserDto = {
+            const body: any = {
                 name: 'Rafael',
                 govId: '33322211155',
                 password: '1234'
@@ -103,7 +99,7 @@ describe('UsersController', () => {
 
         it('should throw an exception in Create User!', () => {
             //arrange
-            const body: RegisterUserDto = {
+            const body: any = {
                 name: 'Rafael',
                 govId: '33322211155',
                 password: '1234'
@@ -118,7 +114,7 @@ describe('UsersController', () => {
 
         it('should deposit balance to user successfully!', async () => {
             //arrange
-            const body: RegisterDepositDto = {
+            const body: any = {
                 balance: 100
             };
             const tokenExtractUser: any = {
@@ -137,7 +133,7 @@ describe('UsersController', () => {
 
         it('should throw an exception in Deposit user!', () => {
             //arrange
-            const body: RegisterDepositDto = {
+            const body: any = {
                 balance: 100
             };
             const tokenExtractUser: any = {
@@ -153,7 +149,7 @@ describe('UsersController', () => {
 
         it('should transfer balance from the logged in user to another user successfully!', async () => {
             //arrange
-            const data: TransferBalanceDto = {
+            const data: any = {
                 transferToUser: '44861199832',
                 balanceTransfer: 1000,
             };
@@ -170,7 +166,7 @@ describe('UsersController', () => {
 
         it('should throw an exceptionin Transfer!', () => {
             //arrange
-            const data: TransferBalanceDto = {
+            const data: any = {
                 transferToUser: '44861199832',
                 balanceTransfer: 1000,
             };

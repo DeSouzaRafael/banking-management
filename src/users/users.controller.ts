@@ -1,9 +1,5 @@
 import { Body, Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/shared/jwt-auth.guard';
-import { CallResponse } from '../dto/response.dto';
-import { RegisterUserDto } from './dto/create.user.dto';
-import { RegisterDepositDto } from './dto/deposit.user.dto';
-import { TransferBalanceDto } from './dto/transfer.balance.user.dto';
 import { Users } from './shared/users.entity';
 import { UsersService } from './shared/users.service';
 
@@ -20,19 +16,19 @@ export class UsersController {
     }
 
     @Post('register')
-    async registerUser(@Body() data: RegisterUserDto): Promise<CallResponse> {
+    async registerUser(@Body() data: any): Promise<any> {
         return this.usersService.registerUser(data)
     }
 
     @UseGuards(JwtAuthGuard)
     @Post('deposit')
-    async deposit(@Request() req, @Body() data: RegisterDepositDto): Promise<CallResponse> {
+    async deposit(@Request() req, @Body() data: any): Promise<any> {
         return this.usersService.deposit(req, data);
     }
 
     @UseGuards(JwtAuthGuard)
     @Post('transfer')
-    async transfer(@Request() req, @Body() data: TransferBalanceDto): Promise<CallResponse> {
+    async transfer(@Request() req, @Body() data: any): Promise<any> {
         return this.usersService.transfer(req, data);
     }
 }

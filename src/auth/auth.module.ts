@@ -7,7 +7,6 @@ import { jwtConstants } from './shared/constants';
 import { JwtStrategy } from './shared/jwt.strategy';
 import { LocalStrategy } from './shared/local.strategy';
 
-
 @Module({
   imports: [
     forwardRef(() => UsersModule),
