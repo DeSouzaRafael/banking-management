@@ -89,13 +89,6 @@ export class UsersService {
         }, HttpStatus.BAD_REQUEST)
       }
 
-      if (data.balanceTransfer > 2000) {
-        throw new HttpException({
-          status: false,
-          message: 'Value higher than acceptable.'
-        }, HttpStatus.BAD_REQUEST)
-      }
-
       let originUserWithdraw = originUser.balance - data.balanceTransfer
       let balanceUserReceive = userToTransfer.balance + data.balanceTransfer
 
