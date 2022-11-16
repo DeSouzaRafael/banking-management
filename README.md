@@ -1,19 +1,47 @@
 # Banking Management
 
-This project was generated with [NestJS](https://nestjs.com) version 9.1.5.
-
+Welcome to Banking Management 1.0
 The objective of this project is to simulate bank accounts main transactions.
+
+## Requirements
+
+This project requires the following programs to be installed in order to work properly:
+
+[Node.js](https://nodejs.org) v16.14.0
+[NestJS](https://nestjs.com) v9.1.5
+[MySql](https://dev.mysql.com/downloads/installer/) latest version
+
+
+After installing node, use the following command to install nestJS in the proper version:
+
+```
+npm i @nestjs/core@9.1.5 
+```
+
+Then, use this one to update project dependencies:
+
+```
+npm install
+```
 
 ## Database
 
-I'm using Mysql, follow the step by step on how to configure for use:
+I'm using Mysql, follow the step by step on how to configure for use.
+
+Connect local database using following parameters:
+
+```json
+Username: "DesafioCod"
+Password: "DesafioCodigo321"
+```
+And run the following script:
 
 ```sql
 CREATE SCHEMA `bank`
 ```
 
 The table below does not need to be created, because when starting the project it creates the table if it does not exist.
-But if you want to create just follow this template:
+If you want to create just follow this template:
 
 ```sql
 CREATE TABLE `users` (
@@ -31,6 +59,10 @@ You can change the access data to the database in the file ".env" or create a lo
 ## Development server
 
 Run `npm run start` for a start server. The route we will be using `http://localhost:3000/`.
+
+
+
+npm install dependencies
 
 ## Running end-to-end tests
 
