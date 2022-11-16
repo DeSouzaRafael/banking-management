@@ -8,7 +8,7 @@ export class UserEntity {
   @Column({ length: 100 })
   name: string;
 
-  @Column({ length: 15 })
+  @Column({ length: 11 })
   govId: string;
 
   @Column('float')

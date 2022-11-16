@@ -19,3 +19,8 @@ export class UserResponse {
     status: boolean;
     message: string;
 }
+
+export class UserBalance {
+    name: string;
+    balance: GLfloat;
+}

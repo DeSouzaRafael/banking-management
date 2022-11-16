@@ -3,7 +3,7 @@ import { Repository } from 'typeorm';
 import { UserEntity } from './users.entity';
 import * as bcrypt from 'bcrypt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User, UserDeposit, UserTransfer, UserResponse } from './users';
+import { User, UserDeposit, UserTransfer, UserResponse, UserBalance } from './users';
 import { fdatasync } from 'fs';
 
 @Injectable()
@@ -16,7 +16,7 @@ export class UsersService {
 
   async deposit(req, data: UserDeposit): Promise<UserResponse> {
 
-    let getUser = await this.userRepository.findOneBy({ id: req.user.id })
+    let getUser = await this.userRepository.findOneBy({ id: req.user.userId })
 
     if (!getUser) {
       throw new HttpException({
@@ -36,7 +36,7 @@ export class UsersService {
     } else if (data.balance > 2000) {
       throw new HttpException({
         status: false,
-        message: 'Amount greater than the accepted limit on the deposit.'
+        message: 'Amount greater than accepted limit on deposit.'
       }, HttpStatus.BAD_REQUEST)
     }
     let totalCash = getUser.balance + data.balance
@@ -58,19 +58,21 @@ export class UsersService {
         status: false,
         message: 'Invalid CPF.'
       }, HttpStatus.BAD_REQUEST)
-    } else if (data.balanceTransfer < 0) {
+    }
+    if (data.balanceTransfer < 0) {
       throw new HttpException({
         status: false,
         message: 'You cannot transfer negative values.'
       }, HttpStatus.BAD_REQUEST)
-    } else if (data.balanceTransfer == 0) {
+    }
+    if (data.balanceTransfer == 0) {
       throw new HttpException({
         status: false,
-        message: 'Enter a tranfer amount.'
+        message: 'Enter a transfer amount.'
       }, HttpStatus.BAD_REQUEST)
     }
 
-    let originUser = await this.userRepository.findOneBy({ id: req.user.id })
+    let originUser = await this.userRepository.findOneBy({ id: req.user.userId })
     let userToTransfer = await this.userRepository.findOne({ where: { govId: data.transferToUser } })
 
     if (originUser && userToTransfer) {
@@ -105,13 +107,13 @@ export class UsersService {
         throw new HttpException({
           status: false,
           message: 'Transaction failed.'
-        }, HttpStatus.BAD_REQUEST)
+        }, HttpStatus.INTERNAL_SERVER_ERROR)
       }
 
     } else {
       throw new HttpException({
         status: false,
-        message: 'User to transfer not exist.'
+        message: 'User to transfer does not exist.'
       }, HttpStatus.BAD_REQUEST)
     }
 
@@ -159,6 +161,25 @@ export class UsersService {
           message: 'Account Created Successfully.'
         }, HttpStatus.OK)
       })
+  }
+
+  async balance(req): Promise<UserBalance> {
+
+    let getUser = await this.userRepository.findOneBy({ id: req.user.userId })
+    if (getUser) {
+
+      let user = new UserBalance()
+      user.name = getUser.name
+      user.balance = getUser.balance
+
+      return user
+    } else {
+      throw new HttpException({
+        status: false,
+        message: 'Internal server error.'
+      }, HttpStatus.BAD_REQUEST)
+    }
+
   }
 
   async findOne(govId: string): Promise<User> {

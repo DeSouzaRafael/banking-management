@@ -36,7 +36,7 @@ describe('Bank Management', () => {
     it('Creating Frist User', async () => {
       const response = await request(app.getHttpServer())
         .post('/users/register')
-        .send({ name: "Rodolfo", govId: "97501056056", password: "4321" })
+        .send({ name: 'Rodolfo', govId: '97501056056', password: '4321' })
         .expect(200)
 
       const data = response.body.message
@@ -93,6 +93,29 @@ describe('Bank Management', () => {
 
     describe('Protected Routes', () => {
 
+      describe('Balance', () => {
+
+        it('Get Balance User', async () => {
+          const response = await request(app.getHttpServer())
+            .get('/users/balance')
+            .set('Authorization', `Bearer ${jwtToken}`)
+            .expect(200)
+
+          const data = response.body
+          expect(data).toStrictEqual({name: "Rodolfo", balance: 0});
+        })
+
+        it('Fails to authenticate to Get Balance', async () => {
+          const response = await request(app.getHttpServer())
+            .get('/users/balance')
+            .expect(401)
+
+          const data = response.body
+          expect(data).toStrictEqual({ statusCode: 401, message: "Unauthorized"});
+        })
+
+      })
+
       describe('Deposit', () => {
 
         it('Valid deposit', async () => {
@@ -124,7 +147,7 @@ describe('Bank Management', () => {
             .expect(400)
 
           const data = response.body.message
-          expect(data).toBe('Amount greater than the accepted limit on the deposit.');
+          expect(data).toBe('Amount greater than accepted limit on deposit.');
         })
 
         it('Fails to send negative values', async () => {
@@ -215,7 +238,7 @@ describe('Bank Management', () => {
 
           const data = response.body.message
 
-          expect(data).toBe('Enter a tranfer amount.')
+          expect(data).toBe('Enter a transfer amount.')
         })
 
         it('Fails to authenticate user to transfer', async () => {
@@ -228,6 +251,19 @@ describe('Bank Management', () => {
           const data = response.body.message
 
           expect(data).toBe('Unauthorized')
+        })
+
+        it('Fails user to transfer does not exist', async () => {
+
+          const response = await request(app.getHttpServer())
+            .put('/users/transfer')
+            .set('Authorization', `Bearer ${jwtToken}`)
+            .send({ transferToUser: "67955397096", balanceTransfer: 1000 })
+            .expect(400)
+
+          const data = response.body.message
+
+          expect(data).toBe('User to transfer does not exist.')
         })
       })
     })
