@@ -62,7 +62,6 @@ Run `npm run start` for a start server. The route we will be using `http://local
 
 
 
-npm install dependencies
 
 ## Running end-to-end tests
 
